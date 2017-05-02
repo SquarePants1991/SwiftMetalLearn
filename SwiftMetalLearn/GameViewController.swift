@@ -29,6 +29,8 @@ class GameViewController:UIViewController, MTKViewDelegate {
     var uniformBuffer: MTLBuffer! = nil
     
     var transform: GLKMatrix4 = GLKMatrix4Identity
+    var lastUpdateTime: TimeInterval = Date().timeIntervalSince1970
+    var elapsedTime: TimeInterval = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -85,7 +87,10 @@ class GameViewController:UIViewController, MTKViewDelegate {
     }
     
     func update() {
-        transform = GLKMatrix4MakeTranslation(0.5, 0, 0)
+        let updateTime: TimeInterval = Date().timeIntervalSince1970
+        elapsedTime += updateTime - lastUpdateTime
+        transform = GLKMatrix4MakeRotation(0.5 * Float(elapsedTime), 0, 0, 1)
+        lastUpdateTime = updateTime
     }
     
     func draw(in view: MTKView) {

@@ -9,6 +9,7 @@
 import UIKit
 import Metal
 import MetalKit
+import GLKit
 
 let vertexData:[Float] =
 [
@@ -25,12 +26,15 @@ class GameViewController:UIViewController, MTKViewDelegate {
     var pipelineState: MTLRenderPipelineState! = nil
     
     var vertexBuffer: MTLBuffer! = nil
+    var uniformBuffer: MTLBuffer! = nil
+    
+    var transform: GLKMatrix4 = GLKMatrix4Identity
     
     override func viewDidLoad() {
         super.viewDidLoad()
         initMetal()
         initPipline()
-        initVertexBuffer()
+        initBuffers()
     }
     
     func initMetal() {
@@ -70,13 +74,27 @@ class GameViewController:UIViewController, MTKViewDelegate {
         }
     }
     
-    func initVertexBuffer() {
+    func initBuffers() {
         let vertexBufferSize = MemoryLayout<Float>.size * vertexData.count
         vertexBuffer = device.makeBuffer(bytes: vertexData, length: vertexBufferSize, options: MTLResourceOptions.cpuCacheModeWriteCombined)
         vertexBuffer.label = "vertices"
+        
+        let uniformBufferSize = MemoryLayout<Float>.size * 16
+        uniformBuffer = device.makeBuffer(length: uniformBufferSize, options: MTLResourceOptions.cpuCacheModeWriteCombined)
+        uniformBuffer.label = "uniforms"
+    }
+    
+    func update() {
+        transform = GLKMatrix4MakeTranslation(0.5, 0, 0)
     }
     
     func draw(in view: MTKView) {
+        
+        self.update()
+        
+        let uniformBufferSize = MemoryLayout<Float>.size * 16
+        let uniformBufferPointer = uniformBuffer.contents()
+        memcpy(uniformBufferPointer, transform.raw, uniformBufferSize)
         
         let commandBuffer = commandQueue.makeCommandBuffer()
         commandBuffer.label = "Frame command buffer"
@@ -87,7 +105,8 @@ class GameViewController:UIViewController, MTKViewDelegate {
             renderEncoder.pushDebugGroup("draw morphing triangle")
             renderEncoder.setRenderPipelineState(pipelineState)
             renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
-            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 9, instanceCount: 1)
+            renderEncoder.setVertexBuffer(uniformBuffer, offset: 0, at: 1)
+            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
             
             renderEncoder.popDebugGroup()
             renderEncoder.endEncoding()

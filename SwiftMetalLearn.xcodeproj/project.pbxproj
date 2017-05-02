@@ -17,6 +17,7 @@
 		8E278B221EB88C8500BF1F60 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8E278B211EB88C8500BF1F60 /* Assets.xcassets */; };
 		8E278B251EB88C8500BF1F60 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8E278B231EB88C8500BF1F60 /* LaunchScreen.storyboard */; };
 		8E278B301EB88C8500BF1F60 /* SwiftMetalLearnTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E278B2F1EB88C8500BF1F60 /* SwiftMetalLearnTests.swift */; };
+		D3CD0D1F1EB8BD6600C6D98B /* GLKitSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3CD0D1E1EB8BD6600C6D98B /* GLKitSwift.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		8E278B2B1EB88C8500BF1F60 /* SwiftMetalLearnTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftMetalLearnTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E278B2F1EB88C8500BF1F60 /* SwiftMetalLearnTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftMetalLearnTests.swift; sourceTree = "<group>"; };
 		8E278B311EB88C8500BF1F60 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D3CD0D1E1EB8BD6600C6D98B /* GLKitSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GLKitSwift.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 				8E278B211EB88C8500BF1F60 /* Assets.xcassets */,
 				8E278B231EB88C8500BF1F60 /* LaunchScreen.storyboard */,
 				8E278B261EB88C8500BF1F60 /* Info.plist */,
+				D3CD0D1E1EB8BD6600C6D98B /* GLKitSwift.swift */,
 			);
 			path = SwiftMetalLearn;
 			sourceTree = "<group>";
@@ -227,6 +230,7 @@
 				8E278B1D1EB88C8500BF1F60 /* Shaders.metal in Sources */,
 				8E278B1B1EB88C8500BF1F60 /* GameViewController.swift in Sources */,
 				8E278B191EB88C8500BF1F60 /* AppDelegate.swift in Sources */,
+				D3CD0D1F1EB8BD6600C6D98B /* GLKitSwift.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -436,6 +440,7 @@
 				8E278B361EB88C8600BF1F60 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8E278B371EB88C8600BF1F60 /* Build configuration list for PBXNativeTarget "SwiftMetalLearnTests" */ = {
 			isa = XCConfigurationList;
@@ -444,6 +449,7 @@
 				8E278B391EB88C8600BF1F60 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

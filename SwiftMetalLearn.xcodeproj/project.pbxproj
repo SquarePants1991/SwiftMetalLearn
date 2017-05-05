@@ -11,12 +11,13 @@
 		8E278B141EB88C8500BF1F60 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E278B131EB88C8500BF1F60 /* MetalKit.framework */; };
 		8E278B161EB88C8500BF1F60 /* ModelIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E278B151EB88C8500BF1F60 /* ModelIO.framework */; };
 		8E278B191EB88C8500BF1F60 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E278B181EB88C8500BF1F60 /* AppDelegate.swift */; };
-		8E278B1B1EB88C8500BF1F60 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E278B1A1EB88C8500BF1F60 /* GameViewController.swift */; };
+		8E278B1B1EB88C8500BF1F60 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E278B1A1EB88C8500BF1F60 /* BaseViewController.swift */; };
 		8E278B1D1EB88C8500BF1F60 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 8E278B1C1EB88C8500BF1F60 /* Shaders.metal */; };
 		8E278B201EB88C8500BF1F60 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8E278B1E1EB88C8500BF1F60 /* Main.storyboard */; };
 		8E278B221EB88C8500BF1F60 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8E278B211EB88C8500BF1F60 /* Assets.xcassets */; };
 		8E278B251EB88C8500BF1F60 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8E278B231EB88C8500BF1F60 /* LaunchScreen.storyboard */; };
 		8E278B301EB88C8500BF1F60 /* SwiftMetalLearnTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E278B2F1EB88C8500BF1F60 /* SwiftMetalLearnTests.swift */; };
+		8E826CF31EBC6E8D00885D87 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E826CF21EBC6E8D00885D87 /* MainViewController.swift */; };
 		D3CD0D1F1EB8BD6600C6D98B /* GLKitSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3CD0D1E1EB8BD6600C6D98B /* GLKitSwift.swift */; };
 /* End PBXBuildFile section */
 
@@ -36,7 +37,7 @@
 		8E278B131EB88C8500BF1F60 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		8E278B151EB88C8500BF1F60 /* ModelIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ModelIO.framework; path = System/Library/Frameworks/ModelIO.framework; sourceTree = SDKROOT; };
 		8E278B181EB88C8500BF1F60 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		8E278B1A1EB88C8500BF1F60 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		8E278B1A1EB88C8500BF1F60 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
 		8E278B1C1EB88C8500BF1F60 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		8E278B1F1EB88C8500BF1F60 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8E278B211EB88C8500BF1F60 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -45,6 +46,7 @@
 		8E278B2B1EB88C8500BF1F60 /* SwiftMetalLearnTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftMetalLearnTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E278B2F1EB88C8500BF1F60 /* SwiftMetalLearnTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftMetalLearnTests.swift; sourceTree = "<group>"; };
 		8E278B311EB88C8500BF1F60 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8E826CF21EBC6E8D00885D87 /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		D3CD0D1E1EB8BD6600C6D98B /* GLKitSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GLKitSwift.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -102,13 +104,14 @@
 			isa = PBXGroup;
 			children = (
 				8E278B181EB88C8500BF1F60 /* AppDelegate.swift */,
-				8E278B1A1EB88C8500BF1F60 /* GameViewController.swift */,
+				8E278B1A1EB88C8500BF1F60 /* BaseViewController.swift */,
 				8E278B1C1EB88C8500BF1F60 /* Shaders.metal */,
 				8E278B1E1EB88C8500BF1F60 /* Main.storyboard */,
 				8E278B211EB88C8500BF1F60 /* Assets.xcassets */,
 				8E278B231EB88C8500BF1F60 /* LaunchScreen.storyboard */,
 				8E278B261EB88C8500BF1F60 /* Info.plist */,
 				D3CD0D1E1EB8BD6600C6D98B /* GLKitSwift.swift */,
+				8E826CF21EBC6E8D00885D87 /* MainViewController.swift */,
 			);
 			path = SwiftMetalLearn;
 			sourceTree = "<group>";
@@ -228,9 +231,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				8E278B1D1EB88C8500BF1F60 /* Shaders.metal in Sources */,
-				8E278B1B1EB88C8500BF1F60 /* GameViewController.swift in Sources */,
+				8E278B1B1EB88C8500BF1F60 /* BaseViewController.swift in Sources */,
 				8E278B191EB88C8500BF1F60 /* AppDelegate.swift in Sources */,
 				D3CD0D1F1EB8BD6600C6D98B /* GLKitSwift.swift in Sources */,
+				8E826CF31EBC6E8D00885D87 /* MainViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

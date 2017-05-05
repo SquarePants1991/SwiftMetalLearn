@@ -20,6 +20,7 @@ struct VertexOut
 {
     float4  position [[position]];
     float4  color;
+    float pointSize [[ point_size ]];
 };
 struct Uniforms
 {
@@ -35,6 +36,8 @@ vertex VertexOut passThroughVertex(uint vid [[ vertex_id ]],
     VertexIn inVertex = vertexIn[vid];
     outVertex.position = uniform.transform * float4(inVertex.position, 1.0);
     outVertex.color = float4(inVertex.color, 1.0);
+    
+    outVertex.pointSize = 20;
     return outVertex;
 };
 

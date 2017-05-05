@@ -11,15 +11,7 @@ import Metal
 import MetalKit
 import GLKit
 
-let vertexData:[Float] =
-[
-    0.0,    0.5,    0.0,    1.0, 0.0, 0.0,  // x,y,z  r,g,b
-    -0.5,  -0.5,    0.0,    0.0, 1.0, 0.0,
-    0.5,    -0.5,   0.0,    0.0, 0.0, 1.0,
-]
-
-
-class GameViewController: UIViewController {
+class BaseViewController: UIViewController {
     
     var device: MTLDevice! = nil
     
@@ -28,10 +20,6 @@ class GameViewController: UIViewController {
     var pipelineStateDescriptor: MTLRenderPipelineDescriptor! = nil;
     var metalLayer: CAMetalLayer! = nil
     let sampleCount: Int = 4
-    
-    var vertexBuffer: MTLBuffer! = nil
-    var uniformBuffer: MTLBuffer! = nil
-    var transform: GLKMatrix4 = GLKMatrix4Identity
     
     var lastUpdateTime: CFTimeInterval = 0
     var displayLink: CADisplayLink! = nil
@@ -43,7 +31,6 @@ class GameViewController: UIViewController {
         super.viewDidLoad()
         initMetal()
         initPipline()
-        initVertexBuffer()
         initRenderLoop()
     }
     
@@ -84,16 +71,6 @@ class GameViewController: UIViewController {
         }
     }
     
-    func initVertexBuffer() {
-        let vertexBufferSize = MemoryLayout<Float>.size * vertexData.count
-        vertexBuffer = device.makeBuffer(bytes: vertexData, length: vertexBufferSize, options: MTLResourceOptions.cpuCacheModeWriteCombined)
-        vertexBuffer.label = "vertices"
-        
-        let uniformBufferSize = MemoryLayout<Float>.size * 16
-        uniformBuffer = device.makeBuffer(length: uniformBufferSize, options: MTLResourceOptions.cpuCacheModeWriteCombined)
-        uniformBuffer.label = "uniforms"
-    }
-    
     func initRenderLoop() {
         self.displayLink = CADisplayLink(target: self, selector: #selector(renderLoop))
         self.displayLink.add(to: RunLoop.main, forMode: RunLoopMode.defaultRunLoopMode)
@@ -102,18 +79,13 @@ class GameViewController: UIViewController {
     
     func renderLoop() {
         let currentTime = self.displayLink.timestamp
-        update(timeInterval: currentTime - self.lastUpdateTime)
+        _update(timeInterval: currentTime - self.lastUpdateTime)
         self.lastUpdateTime = currentTime
     }
     
-    func update(timeInterval: CFTimeInterval) {
+    func _update(timeInterval: CFTimeInterval) {
         self.elapsedTime += timeInterval
-        transform = GLKMatrix4MakeRotation(Float(self.elapsedTime), 0, 0, 1)
-        
-        // 更新uniform的缓冲区
-        let uniformBufferSize = MemoryLayout<Float>.size * 16
-        let uniformBufferPointer = uniformBuffer.contents()
-        memcpy(uniformBufferPointer, transform.raw, uniformBufferSize)
+        self.update(timeInterval: timeInterval)
         
         guard let drawable = metalLayer?.nextDrawable() else { return }
         let renderPassDescriptor = genMultisampleRenderPassDescriptor(sampleCount: sampleCount, texture: drawable.texture)
@@ -121,11 +93,11 @@ class GameViewController: UIViewController {
         commandBuffer.label = "Frame command buffer"
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
         renderEncoder.label = "render encoder"
-        renderEncoder.pushDebugGroup("draw morphing triangle")
+        renderEncoder.pushDebugGroup("begin draw")
         renderEncoder.setRenderPipelineState(pipelineState)
-        renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
-        renderEncoder.setVertexBuffer(uniformBuffer, offset: 0, at: 1)
-        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
+       
+        self.draw(renderEncoder: renderEncoder)
+        
         renderEncoder.popDebugGroup()
         renderEncoder.endEncoding()
         
@@ -146,5 +118,13 @@ class GameViewController: UIViewController {
         renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreAction.multisampleResolve
         renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0, blue: 0, alpha: 1.0)
         return renderPassDescriptor
+    }
+
+    func update(timeInterval: CFTimeInterval) {
+
+    }
+    
+    func draw(renderEncoder: MTLRenderCommandEncoder) {
+
     }
 }

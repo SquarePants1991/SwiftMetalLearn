@@ -14,37 +14,31 @@ class MainViewController: BaseViewController {
     var vertexBuffer: MTLBuffer! = nil
     var uniformBuffer: MTLBuffer! = nil
     var projectionMatrix: GLKMatrix4 = GLKMatrix4Identity
+    var viewMatrix: GLKMatrix4 = GLKMatrix4Identity
+    var modelMatrix: GLKMatrix4 = GLKMatrix4Identity
     
     override func viewDidLoad() {
         super.viewDidLoad()
         initBuffers()
+        viewMatrix = GLKMatrix4Identity
     }
     
     override func update(timeInterval: CFTimeInterval) {
         let aspect: Float = Float(self.view.frame.size.width / self.view.frame.size.height)
+        projectionMatrix = GLKMatrix4MakePerspective(90, aspect, 0.1, 1000)
+        
+        viewMatrix = GLKMatrix4MakeLookAt(0, 0, sin(Float(self.elapsedTime)) + 1.0, 0, 0, 0, 0, 1, 0)
+        
+        let translateMatrix = GLKMatrix4MakeTranslation(0, 0, -1)
         let rotateMatrix = GLKMatrix4MakeRotation(Float(self.elapsedTime), 0, 1, 0)
-        var finalMatrix: GLKMatrix4 = GLKMatrix4Identity
-        
-        // 透视投影
-//        projectionMatrix = GLKMatrix4MakePerspective(90, aspect, 0.1, 1000)
-//        let translateMatrix = GLKMatrix4MakeTranslation(0, 0, -1)
-//        finalMatrix = GLKMatrix4Multiply(translateMatrix, rotateMatrix)
-//        finalMatrix = GLKMatrix4Multiply(projectionMatrix, finalMatrix)
-        
-        // 正交投影
-        let w: Float = Float(self.view.frame.size.width)
-        let h: Float = Float(self.view.frame.size.height)
-        projectionMatrix = GLKMatrix4MakeOrtho(-w/2, w/2, -h/2, h/2, -200, 200)
-        let scaleMatrix = GLKMatrix4MakeScale(100, 100, 0)
-        let translateMatrix = GLKMatrix4MakeTranslation(0, 0, -100)
-        finalMatrix = GLKMatrix4Multiply(rotateMatrix, scaleMatrix)
-        finalMatrix = GLKMatrix4Multiply(translateMatrix, finalMatrix)
-        finalMatrix = GLKMatrix4Multiply(projectionMatrix, finalMatrix)
+        modelMatrix = GLKMatrix4Multiply(translateMatrix, rotateMatrix)
         
         // 更新uniform的缓冲区
-        let uniformBufferSize = MemoryLayout<Float>.size * 16
+        let matrixSize = MemoryLayout<Float>.size * 16
         let uniformBufferPointer = uniformBuffer.contents()
-        memcpy(uniformBufferPointer, finalMatrix.raw, uniformBufferSize)
+        memcpy(uniformBufferPointer, projectionMatrix.raw, matrixSize)
+        memcpy(uniformBufferPointer + MemoryLayout<Float>.size * 16, viewMatrix.raw, matrixSize)
+        memcpy(uniformBufferPointer + MemoryLayout<Float>.size * 16 * 2, modelMatrix.raw, matrixSize)
     }
     
     override func draw(renderEncoder: MTLRenderCommandEncoder) {
@@ -52,7 +46,7 @@ class MainViewController: BaseViewController {
     }
     
     func initBuffers() {
-        let uniformBufferSize = MemoryLayout<Float>.size * 16
+        let uniformBufferSize = MemoryLayout<Float>.size * 16 * 3
         uniformBuffer = device.makeBuffer(length: uniformBufferSize, options: MTLResourceOptions.cpuCacheModeWriteCombined)
         uniformBuffer.label = "uniforms"
     }

@@ -24,7 +24,9 @@ struct VertexOut
 };
 struct Uniforms
 {
-    float4x4 transform;
+    float4x4 projectionMatrix;
+    float4x4 viewMatrix;
+    float4x4 modelMatrix;
 };
 
 
@@ -34,7 +36,8 @@ vertex VertexOut passThroughVertex(uint vid [[ vertex_id ]],
 {
     VertexOut outVertex;
     VertexIn inVertex = vertexIn[vid];
-    outVertex.position = uniform.transform * float4(inVertex.position, 1.0);
+    float4x4 mvp = uniform.projectionMatrix * uniform.viewMatrix * uniform.modelMatrix;
+    outVertex.position = mvp * float4(inVertex.position, 1.0);
     outVertex.color = float4(inVertex.color, 1.0);
     
     outVertex.pointSize = 20;

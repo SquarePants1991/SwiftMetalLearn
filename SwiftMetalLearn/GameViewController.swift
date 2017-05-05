@@ -13,30 +13,38 @@ import GLKit
 
 let vertexData:[Float] =
 [
-    -1.0, -1.0, 0.0, 1.0,
-    -1.0,  1.0, 0.0, 1.0,
-    1.0, -1.0, 0.0, 1.0,
+    0.0,    0.5,    0.0,    1.0, 0.0, 0.0,  // x,y,z  r,g,b
+    -0.5,  -0.5,    0.0,    0.0, 1.0, 0.0,
+    0.5,    -0.5,   0.0,    0.0, 0.0, 1.0,
 ]
 
-class GameViewController:UIViewController, MTKViewDelegate {
+
+class GameViewController: UIViewController {
     
     var device: MTLDevice! = nil
     
     var commandQueue: MTLCommandQueue! = nil
     var pipelineState: MTLRenderPipelineState! = nil
+    var pipelineStateDescriptor: MTLRenderPipelineDescriptor! = nil;
+    var metalLayer: CAMetalLayer! = nil
+    let sampleCount: Int = 4
     
     var vertexBuffer: MTLBuffer! = nil
     var uniformBuffer: MTLBuffer! = nil
-    
     var transform: GLKMatrix4 = GLKMatrix4Identity
-    var lastUpdateTime: TimeInterval = Date().timeIntervalSince1970
-    var elapsedTime: TimeInterval = 0
+    
+    var lastUpdateTime: CFTimeInterval = 0
+    var displayLink: CADisplayLink! = nil
+    var elapsedTime: CFTimeInterval = 0
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         initMetal()
         initPipline()
-        initBuffers()
+        initVertexBuffer()
+        initRenderLoop()
     }
     
     func initMetal() {
@@ -47,15 +55,15 @@ class GameViewController:UIViewController, MTKViewDelegate {
             return
         }
         
-        // setup view properties
-        let view = self.view as! MTKView
-        view.device = device
-        view.delegate = self
-        view.preferredFramesPerSecond = 60
+        metalLayer = CAMetalLayer()         
+        metalLayer.device = device
+        metalLayer.pixelFormat = .bgra8Unorm
+        metalLayer.framebufferOnly = true   
+        metalLayer.frame = view.layer.frame 
+        view.layer.addSublayer(metalLayer)
     }
     
     func initPipline() {
-        let view = self.view as! MTKView
         commandQueue = device.makeCommandQueue()
         commandQueue.label = "main metal command queue"
         
@@ -63,11 +71,11 @@ class GameViewController:UIViewController, MTKViewDelegate {
         let fragmentProgram = defaultLibrary.makeFunction(name: "passThroughFragment")!
         let vertexProgram = defaultLibrary.makeFunction(name: "passThroughVertex")!
         
-        let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+        self.pipelineStateDescriptor = MTLRenderPipelineDescriptor()
         pipelineStateDescriptor.vertexFunction = vertexProgram
         pipelineStateDescriptor.fragmentFunction = fragmentProgram
-        pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat
-        pipelineStateDescriptor.sampleCount = view.sampleCount
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = metalLayer.pixelFormat
+        pipelineStateDescriptor.sampleCount = sampleCount
         
         do {
             try pipelineState = device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
@@ -76,7 +84,7 @@ class GameViewController:UIViewController, MTKViewDelegate {
         }
     }
     
-    func initBuffers() {
+    func initVertexBuffer() {
         let vertexBufferSize = MemoryLayout<Float>.size * vertexData.count
         vertexBuffer = device.makeBuffer(bytes: vertexData, length: vertexBufferSize, options: MTLResourceOptions.cpuCacheModeWriteCombined)
         vertexBuffer.label = "vertices"
@@ -86,43 +94,57 @@ class GameViewController:UIViewController, MTKViewDelegate {
         uniformBuffer.label = "uniforms"
     }
     
-    func update() {
-        let updateTime: TimeInterval = Date().timeIntervalSince1970
-        elapsedTime += updateTime - lastUpdateTime
-        transform = GLKMatrix4MakeRotation(0.5 * Float(elapsedTime), 0, 0, 1)
-        lastUpdateTime = updateTime
+    func initRenderLoop() {
+        self.displayLink = CADisplayLink(target: self, selector: #selector(renderLoop))
+        self.displayLink.add(to: RunLoop.main, forMode: RunLoopMode.defaultRunLoopMode)
+        self.lastUpdateTime = self.displayLink.timestamp
     }
     
-    func draw(in view: MTKView) {
+    func renderLoop() {
+        let currentTime = self.displayLink.timestamp
+        update(timeInterval: currentTime - self.lastUpdateTime)
+        self.lastUpdateTime = currentTime
+    }
+    
+    func update(timeInterval: CFTimeInterval) {
+        self.elapsedTime += timeInterval
+        transform = GLKMatrix4MakeRotation(Float(self.elapsedTime), 0, 0, 1)
         
-        self.update()
-        
+        // 更新uniform的缓冲区
         let uniformBufferSize = MemoryLayout<Float>.size * 16
         let uniformBufferPointer = uniformBuffer.contents()
         memcpy(uniformBufferPointer, transform.raw, uniformBufferSize)
         
+        guard let drawable = metalLayer?.nextDrawable() else { return }
+        let renderPassDescriptor = genMultisampleRenderPassDescriptor(sampleCount: sampleCount, texture: drawable.texture)
         let commandBuffer = commandQueue.makeCommandBuffer()
         commandBuffer.label = "Frame command buffer"
+        let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
+        renderEncoder.label = "render encoder"
+        renderEncoder.pushDebugGroup("draw morphing triangle")
+        renderEncoder.setRenderPipelineState(pipelineState)
+        renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
+        renderEncoder.setVertexBuffer(uniformBuffer, offset: 0, at: 1)
+        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
+        renderEncoder.popDebugGroup()
+        renderEncoder.endEncoding()
         
-        if let renderPassDescriptor = view.currentRenderPassDescriptor, let currentDrawable = view.currentDrawable {
-            let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
-            renderEncoder.label = "render encoder"
-            renderEncoder.pushDebugGroup("draw morphing triangle")
-            renderEncoder.setRenderPipelineState(pipelineState)
-            renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, at: 0)
-            renderEncoder.setVertexBuffer(uniformBuffer, offset: 0, at: 1)
-            renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
-            
-            renderEncoder.popDebugGroup()
-            renderEncoder.endEncoding()
-                
-            commandBuffer.present(currentDrawable)
-        }
+        commandBuffer.present(drawable)
         commandBuffer.commit()
     }
     
-    
-    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+    func genMultisampleRenderPassDescriptor(sampleCount: Int, texture: MTLTexture) -> MTLRenderPassDescriptor {
+        let renderPassDescriptor = MTLRenderPassDescriptor()
+        let desc = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: texture.pixelFormat, width: texture.width, height: texture.height, mipmapped: false)
+        desc.textureType = MTLTextureType.type2DMultisample;
+        desc.sampleCount = sampleCount;
+        let multisampleTexture = device.makeTexture(descriptor: desc)
+        renderPassDescriptor.colorAttachments[0].texture = multisampleTexture
+        renderPassDescriptor.colorAttachments[0].resolveTexture = texture
         
+        renderPassDescriptor.colorAttachments[0].loadAction = .clear
+        renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreAction.multisampleResolve
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0, blue: 0, alpha: 1.0)
+        return renderPassDescriptor
     }
 }

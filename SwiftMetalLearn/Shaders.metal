@@ -10,7 +10,13 @@
 
 using namespace metal;
 
-struct VertexInOut
+struct VertexIn
+{
+    packed_float3  position;
+    packed_float3  color;
+};
+
+struct VertexOut
 {
     float4  position [[position]];
     float4  color;
@@ -20,19 +26,19 @@ struct Uniforms
     float4x4 transform;
 };
 
-vertex VertexInOut passThroughVertex(uint vid [[ vertex_id ]],
-                                     constant packed_float4* position  [[ buffer(0) ]],
-                                     constant Uniforms& transform    [[ buffer(1) ]])
+
+vertex VertexOut passThroughVertex(uint vid [[ vertex_id ]],
+                                     const device VertexIn* vertexIn [[ buffer(0) ]],
+                                     const device Uniforms& uniform [[ buffer(1) ]])
 {
-    VertexInOut outVertex;
-    
-    outVertex.position = transform.transform * float4(position[vid]);
-    outVertex.color    = float4(1.0,0.0,0.0,1.0);
-    
+    VertexOut outVertex;
+    VertexIn inVertex = vertexIn[vid];
+    outVertex.position = uniform.transform * float4(inVertex.position, 1.0);
+    outVertex.color = float4(inVertex.color, 1.0);
     return outVertex;
 };
 
-fragment half4 passThroughFragment(VertexInOut inFrag [[stage_in]])
+fragment half4 passThroughFragment(VertexOut inFrag [[stage_in]])
 {
     return half4(inFrag.color);
 };
